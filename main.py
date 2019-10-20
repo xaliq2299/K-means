@@ -141,7 +141,7 @@ def main():
 	csvFile=open("clusters.csv","w+")
 	for i in range(k):
 		for j in range(len(clusters[i].set)):
-			csvFile.write(str(i)+",")
+			csvFile.write(str(i)+",") # wir
 			writer = csv.writer(csvFile)
 			row=clusters[i].set[j] # TODO
 			#row[0]=i
