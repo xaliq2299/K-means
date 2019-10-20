@@ -1,5 +1,6 @@
 import numpy as np
 import random as rnd
+import csv
 
 class Cluster:
 	def __init__(self): # constructor
@@ -107,7 +108,7 @@ def main():
 	steps=0
 	LIMIT=k*5+1 # Setting a Maximal Number of iterations
 	while( steps<LIMIT ): #stillChanges(clusters)
-		print("Step ", steps)
+		#print("Step ", steps)
 		# Euclidian distance with respect to each centroid
 		for count in range(len(irisData)):
 			distances=np.zeros(k) # [0, 0, 0]
@@ -135,6 +136,18 @@ def main():
 		print("Cluster", i+1, ":")
 		clusters[i].printSummary()
 		print("")
+
+	# Exporting clusters in a csv file
+	csvFile=open("clusters.csv","w+")
+	for i in range(k):
+		for j in range(len(clusters[i].set)):
+			csvFile.write(str(i)+",")
+			writer = csv.writer(csvFile)
+			row=clusters[i].set[j] # TODO
+			#row[0]=i
+			writer.writerow(row)
+
+	csvFile.close()
 
 if __name__== "__main__" :
 	main()
