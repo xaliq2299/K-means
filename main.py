@@ -105,7 +105,7 @@ def main():
 
 	# Step 2: Assigning datapoint to clusters
 	steps=0
-	LIMIT=10 # Setting a Maximal Number of iterations
+	LIMIT=k*3+1 # Setting a Maximal Number of iterations
 	while( steps<LIMIT ): #stillChanges(clusters)
 		print("Step ", steps)
 		# Euclidian distance with respect to each centroid
@@ -124,6 +124,7 @@ def main():
 		# Step 3: Updating clusters center
 		for i in range(k):
 			clusters[i].findCentroid()	
+		
 		for i in range(k):
 			print( len(clusters[i].set) )
 			
