@@ -2,11 +2,11 @@ import numpy as np
 import random as rnd
 
 class Cluster:
-	def __init__(self):
+	def __init__(self): # constructor
 		self.set=[]
-		#self.centroid=[0,0,0,0]
+		self.centroid=[0,0,0,0] # decide about it
 
-	def findCentroid(self):
+	def findCentroid(self): # method to find center of cluster
 		self.centroid=[0,0,0,0]
 		for i in range(4):
 			for j in range(len(self.set)):
@@ -16,8 +16,12 @@ class Cluster:
 				self.centroid[i] /= len(self.set)
 		return self.centroid
 
+	def printSummary(self):
+		print("Centroid of cluster: ", self.findCentroid())
+		print("Length of cluster: ", len(self.set) )
+		#print(clusters[i].set)
 
-def distance(a,b):
+def distance(a,b): # a function to calculate Euclidian distance between a and b 
 	#print(a,b)
 	if len(a) != len(b):
 		return None
@@ -26,7 +30,7 @@ def distance(a,b):
 		dist += (float(a[i])-float(b[i]))**2
 	return dist
 
-def stillChanges(clusters):
+def stillChanges(clusters): # detects whether clusters still change
 	flag=False
 	# if empty sets
 	if len(clusters[0].set) == 0 or len(clusters[1].set) == 0 or len(clusters[2].set) == 0:
@@ -35,8 +39,8 @@ def stillChanges(clusters):
 	
 	for i in range(len(clusters)):
 		for j in range(len(clusters[i].set)):
-			distances=np.zeros(3) # precise the place
-			for k in range(len(clusters)): # for np array of 0s
+			distances=np.zeros(3) # precise the place for np array of 0s
+			for k in range(len(clusters)):
 				#print(clusters[i].set[j], clusters[k].centroid)
 				distances[k]=distance(clusters[i].set[j],clusters[k].centroid)
 			
@@ -47,87 +51,75 @@ def stillChanges(clusters):
 				return flag
 	return flag
 
-def findCluster(clusters,item):
+def findCluster(clusters,item): # find which cluster given item belongs to
 	for i in range(len(clusters)):
 		for j in range(len(clusters[i].set)):
 			if clusters[i].set[j] == item:
 				return i
 	return -1
 
+def read_file(filename,nClusters): # reading file, getting and returning data together with clusters
+	# opening file and reading data
+	data=[]
+	try:
+		file=open(filename, 'rt')
+	except FileNotFoundError:
+		print("[!] Provided file does not exist.")
+		exit(0)
+
+	line=file.readline()
+	while line != "\n":
+		#print(line)
+		parse=line.split(',')
+		#print(parse)
+		data.append(parse[:4]) # taking first 4 columns since last one (name of flour) is not needed
+		line=file.readline()
+	#print(data)
+	file.close()
+
+	# Starting job with clusters
+	clusters=[]
+	for i in range(nClusters):
+		clusters.append(Cluster())
+
+	# Step needed: appending irisData elements to clusters beforehand
+	for i in range(nClusters):
+		start=i*len(data)//nClusters
+		end = start+len(data)//nClusters
+		for j in range(start,end):
+			clusters[i].set.append(data[j][:4])
+
+	return (data,clusters)
 
 def main():
 	irisData=[]
 	k=3 # number of clusters
+	k=int(input("Enter number of clusters: "))
+	irisData,clusters=read_file('iris_text.data',k)
 
-	file=open("iris_text.data", 'rt')
-	line=file.readline()
-	while line != "\n":
-		# print(line)
-		parse=line.split(',')
-		# print(parse)
-		irisData.append(parse)
-		line=file.readline()
-
-	#print(irisData)
-	clusters=[]
-	for i in range(k):
-		clusters.append(Cluster())
-
+	# Algorithm starts here
 	# Step 1: Cluster initialisation
-
-	# Step *needed: appending irisData elements to clusters beforehand
 	for i in range(k):
-		start=i*len(irisData)//k
-		end = start+len(irisData)//k
-		for j in range(start,end):
-			clusters[i].set.append(irisData[j][:4])
+		index=rnd.randint(0,len(irisData)-1)
+		clusters[i].centroid=irisData[index]
 
-	#clusters[0].set.append(irisData[0][:4])
-	for i in range(k):
-		index=rnd.randint(0,len(irisData))
-		clusters[i].centroid=irisData[index][:4]
-		#clusters[0].centroid=irisData[0][:4]
-
-	
 	# Step 2: Assigning datapoint to clusters
-	'''
-	while( stillChanges(clusters) ):
-		print("steps=", steps)
-		for i in range(0,k):
-			for j in range( len(clusters[i].set) ):
-				distances=np.zeros(3) # [0, 0, 0]
-				for d in range(0,3):
-					print(i,j,d)
-					print(len(clusters[i].set))
-					distances[d]=distance(clusters[i].set[j],clusters[i].centroid)
-				
-				min = distances.argmin() # closest cluster
-				if min != i: # if doesn't to the same cluster
-				#print(i,j,min)
-					clusters[min].set.append(clusters[i].set[j])
-					clusters[i].set.remove(clusters[i].set[j])
-		#print(len(clusters[1].set))	
-		#print("Hello")
-		clusters[0].findCentroid()
-		clusters[1].findCentroid()
-		clusters[2].findCentroid()
-
-		steps += 1
-	'''
 	steps=0
-	while( steps<10 ):
+	LIMIT=10 # Setting a Maximal Number of iterations
+	while( steps<LIMIT ): #stillChanges(clusters)
+		print("Step ", steps)
+		# Euclidian distance with respect to each centroid
 		for count in range(len(irisData)):
-			# Euclidian distance with respect to each centroid
 			distances=np.zeros(k) # [0, 0, 0]
 			for d in range(k):
-				distances[d]=distance(irisData[count][:4],clusters[d].centroid)
+				distances[d]=distance(irisData[count],clusters[d].centroid)
 			#print(distances)
 			min = distances.argmin() # closest cluster
-			current = findCluster(clusters,irisData[count][:4])
-			if min != current and current != -1: # if doesn't to the same cluster
-			#print(i,j,min)
-				clusters[current].set.remove(irisData[count][:4])
-				clusters[min].set.append(irisData[count][:4])
+			current = findCluster(clusters,irisData[count])
+			if min != current and current != -1: # if doesn't belong to the same cluster
+				#print(i,j,min)
+				clusters[current].set.remove(irisData[count])
+				clusters[min].set.append(irisData[count])
 			
 		# Step 3: Updating clusters center
 		for i in range(k):
@@ -136,15 +128,12 @@ def main():
 			print( len(clusters[i].set) )
 			
 		steps += 1
-		print("Step ", steps)
-
 
 	# Summary
 	for i in range(k):
-		print("Cluster :", i)
-		print("Centroid of cluster: ", clusters[i].findCentroid())
-		print( "Length of cluster: ", len(clusters[i].set) )
-		#print(clusters[i].set)
+		print("Cluster", i+1, ":")
+		clusters[i].printSummary()
+		print("")
 
 if __name__== "__main__" :
 	main()
