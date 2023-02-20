@@ -1,4 +1,7 @@
 # K-means
+
+This repository covers the implementation of K-Means algorithm for the assignment of AI course at UFAZ.
+
 Requires: Iris (flower) dataset
 
 The main idea is to classify data that are not necessary labelled. K-means will partition the dataset in k groups (or clusters).
